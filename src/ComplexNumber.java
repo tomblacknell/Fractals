@@ -1,37 +1,38 @@
 
 public class ComplexNumber {
 
-    private int realPart, imaginaryPart;
+    private double realPart, imaginaryPart;
     private double modulus;
 
-    public ComplexNumber(int a, int b) {
+    public ComplexNumber(double a, double b) {
         realPart = a;
         imaginaryPart = b;
-        modulus = Math.sqrt(realPart*realPart + imaginaryPart*imaginaryPart);
     }
 
-    public int getRealPart() {
+    public double getRealPart() {
         return realPart;
     }
 
-    public int getImaginaryPart() {
+    public double getImaginaryPart() {
         return imaginaryPart;
     }
 
-    public void square() {
-        int newRealPart = (realPart * realPart) - (imaginaryPart * imaginaryPart);
-        int newImaginaryPart = (realPart * imaginaryPart) + (realPart * imaginaryPart);
+    public ComplexNumber square() {
+        double newRealPart = (realPart * realPart) + (imaginaryPart * imaginaryPart * - 1);
+        double newImaginaryPart = (realPart * imaginaryPart * 2);
         realPart = newRealPart;
         imaginaryPart = newImaginaryPart;
+        return this;
     }
 
     public double modulusSquared() {
-        return modulus;
+        return (realPart*realPart) + (imaginaryPart*imaginaryPart);
     }
 
-    public void add(ComplexNumber other) {
+    public ComplexNumber add(ComplexNumber other) {
         realPart += other.getRealPart();
         imaginaryPart += other.getImaginaryPart();
+        return this;
     }
 
     @Override

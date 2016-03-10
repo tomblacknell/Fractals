@@ -5,7 +5,7 @@ public class Main {
 
         System.out.println("Starting...");
 
-        FractalDesignerFrame frame = new FractalDesignerFrame(1000, 600);
+        FractalDesignerFrame frame = new FractalDesignerFrame(1600, 850);
 
     }
 

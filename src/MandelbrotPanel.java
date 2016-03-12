@@ -5,11 +5,11 @@ import java.awt.event.MouseEvent;
 
 public class MandelbrotPanel extends JPanel {
 
-    private static final double MIN_X = -2;
-    private static final double MAX_X = 2;
-    private static final double MIN_Y = -1.6;
-    private static final double MAX_Y = 1.6;
-    private static final int ITERATIONS = 100;
+    private double MIN_X = -2;
+    private double MAX_X = 2;
+    private double MIN_Y = -1.6;
+    private double MAX_Y = 1.6;
+    private int ITERATIONS = 100;
 
     private ComplexNumber mouseCurrent, mouseClicked;
     private double width, height;
@@ -31,7 +31,6 @@ public class MandelbrotPanel extends JPanel {
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
                 mouseClicked = translateToComplex(e.getX(), e.getY());
-                System.out.println("Mouse Clicked");
                 repaint();
             }
         });
@@ -52,8 +51,39 @@ public class MandelbrotPanel extends JPanel {
         this.height = h;
     }
 
+    public void updateIterations(int iterations) {
+        this.ITERATIONS = iterations;
+    }
+
+    public void updateMinX(double minX) {
+        this.MIN_X = minX;
+    }
+
+    public void updateMinY(double minY) {
+        this.MIN_Y = minY;
+    }
+
+    public void updateMaxX(double maxX) {
+        this.MAX_X = maxX;
+    }
+
+    public void updateMaxY(double maxY) {
+        this.MAX_Y = maxY;
+    }
+
     private ComplexNumber translateToComplex(int x, int y) {
         return new ComplexNumber(MIN_X + ((x / width) * (MAX_X - MIN_X)),  MIN_Y + ((y / height) * (MAX_Y - MIN_Y)));
+    }
+
+    private int[] translateToReal(ComplexNumber c) {
+        int[] points = new int[2];
+
+        points[0] = (int) (Math.abs(c.getRealPart() - MIN_X) / (MAX_X - MIN_X) * width);
+        points[1] = (int) (Math.abs(c.getImaginaryPart() - MIN_Y) / ( MAX_Y - MIN_Y) * height);
+
+        //System.out.println("Translated complex point (" + c.getRealPart() + ", " + c.getImaginaryPart() + ") to real point + (" + points[0] + ", " + points[1] + ")");
+
+        return points;
     }
 
     @Override
@@ -68,14 +98,21 @@ public class MandelbrotPanel extends JPanel {
             for (int j = 0; j < height; j++) {
                 ComplexNumber c = translateToComplex(i, j);
 
-                int pointOfDiverge = getPointOfDiverge(c);
+                int pointOfDiverge = Util.getPointOfDiverge(c, ITERATIONS);
 
-                graphics.setColor(getColor(pointOfDiverge));
+                graphics.setColor(Util.getColor(pointOfDiverge));
                 graphics.drawLine(i, j, i, j);
             }
         }
 
         // draw the axis
+        graphics.setColor(Color.RED);
+        if (mouseCurrent != null) {
+            graphics.drawLine(translateToReal(mouseCurrent)[0], 0, translateToReal(mouseCurrent)[0], (int) height);
+            graphics.drawLine(0, translateToReal(mouseCurrent)[1], (int) width, translateToReal(mouseCurrent)[1]);
+
+        }
+
         graphics.setColor(Color.WHITE);
 
         if (MIN_X < 0 && MAX_X > 0) {
@@ -95,50 +132,18 @@ public class MandelbrotPanel extends JPanel {
 
         if (mouseCurrent != null) {
             graphics.drawString("Current: " + String.format("%.2f", mouseCurrent.getImaginaryPart()) + ", " + String.format("%.2f", mouseCurrent.getRealPart()), 10, 20);
+        } else {
+            graphics.drawString("Current: ", 10, 20);
         }
 
         if (mouseClicked != null) {
             graphics.drawString("Clicked: " + String.format("%.2f", mouseClicked.getImaginaryPart()) + ", " + String.format("%.2f", mouseClicked.getRealPart()), 10, 45);
-        }
-
-    }
-
-    public int getPointOfDiverge(ComplexNumber c) {
-        ComplexNumber z = new ComplexNumber(c.getRealPart(), c.getImaginaryPart());
-        for (int i = 0; i < ITERATIONS; i++) {
-            if (z.modulusSquared() > 4) {
-                return i;
-            }
-            z.square();
-            z.add(c);
-        }
-        return ITERATIONS;
-    }
-
-    public Color getColor(int p) {
-        if (p <= 1 ) {
-            return Color.BLACK;
-        } else if (p <= 2 ) {
-            return new Color(0, 20, 0);
-        } else if (p <= 3 ) {
-            return new Color(2, 40, 0);
-        } else if (p <= 4 ) {
-            return new Color(2,60, 0);
-        } else if (p <= 5 ) {
-            return new Color(3,80,0);
-        } else if (p <= 6 ) {
-            return new Color(4,100,0);
-        } else if (p <= 10) {
-            return new Color(5,120,0);
-        } else if (p <= 20) {
-            return new Color(6,140,0);
-        } else if (p <= 30) {
-            return new Color(7,160,0);
-        } else if (p < 100) {
-            return new Color(8,230,0);
+            graphics.setColor(Color.RED);
+            graphics.fillRect(translateToReal(mouseClicked)[0] - 3, translateToReal(mouseClicked)[1] - 3, 6, 6);
         } else {
-            return new Color(0,0,0);
+            graphics.drawString("Clicked: ", 10, 45);
         }
     }
+
 
 }
